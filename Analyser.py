@@ -558,7 +558,7 @@ class SampleData:
   """
   Holds the data for the relevant file
   """
-  def __init__(self, file_name, index_col=2, thumb_col=1, freq=10):
+  def __init__(self, file_name, index_col=1, thumb_col=2, freq=10):
     self.file_name = file_name
     self.index_col = index_col
     self.thumb_col = thumb_col
@@ -795,7 +795,7 @@ class PositionData:
   """
   Holds the position data
   """
-  def __init__(self, timestamp, thumb_pos, index_pos):
+  def __init__(self, timestamp, index_pos, thumb_pos):
     self.timestamp = timestamp
     self.thumb_pos = float(thumb_pos)
     self.index_pos = float(index_pos)
@@ -1057,23 +1057,23 @@ def main():
   with open('summary/log.csv', 'w') as f:
     csv_writer = csv.writer(f, quotechar='"', delimiter=',')
     csv_writer.writerow(
-      ['Subject', 'Group', 'Test Date', 'Age', 'Gender', 'Stroke Date', 'Stroke Type', 'Side Tested', 'MAS Score 7',
-       'MAS Score 8', 'Dominant Hand'])
+      ['subject', 'group', 'test_date', 'age', 'sex', 'stroke_date', 'stroke_type', 'side_tested', 'mas_score_7',
+       'mas_score_8', 'dominiant_hand'])
     for s in subjects:
       s.write_log_to_csv(csv_writer)
 
-  header_prefix = ['Subject', 'Group', 'Age', 'Gender']
+  header_prefix = ['subject', 'group', 'age', 'sex']
 
   header_raw = header_prefix.copy()
   header_percent = header_prefix.copy()
-  header_raw.append('Total Time Points')
-  header_raw.append('< 0')
-  header_percent.append('< 0')
+  header_raw.append('total_time_points')
+  header_raw.append('lt_0_pct')
+  header_percent.append('lt_0_pct')
   for i in range(defaults['percentile_count']):
-    header_raw.append('>= %d%% - < %d%%' % (i * defaults['percentile_count'], (i + 1) * defaults['percentile_count']))
-    header_percent.append('>= %d%% - < %d%%' % (i * defaults['percentile_count'], (i + 1) * defaults['percentile_count']))
-  header_raw.append('>= 100%')
-  header_percent.append('>= 100%')
+    header_raw.append('ge_%d_pct_to_lt_%d_pct' % (i * defaults['percentile_count'], (i + 1) * defaults['percentile_count']))
+    header_percent.append('ge_%d_pct_to_lt_%d_pct' % (i * defaults['percentile_count'], (i + 1) * defaults['percentile_count']))
+  header_raw.append('ge_100_pct')
+  header_percent.append('ge_100_pct')
 
   empty_data = ['NA'] * (defaults['percentile_count']+2)
 
@@ -1097,7 +1097,7 @@ def main():
   for d in defaults['digits']:
     amplitude_file = open('summary/amplitude_%s.csv' % d, 'w')
     amplitude_csv = csv.writer(amplitude_file, quotechar='"', delimiter=',')
-    amplitude_csv.writerow(header_prefix + ['Total Amplitude', 'Total Movements', 'Average Amplitude', '% ROM'])
+    amplitude_csv.writerow(header_prefix + ['total_amplitude', 'total_movements', 'average_amplitude', 'pct_rom'])
     for s in subjects:
       if d in s.average_amplitude:
         amplitude_csv.writerow(s.generate_output_file_prefix() + [s.total_amplitude[d], s.movement_count[d], s.average_amplitude[d], s.average_amplitude[d]/s.ROM[d]])
@@ -1109,11 +1109,11 @@ def main():
     velocity_file = open('summary/velocity_%s.csv' % d, 'w')
     velocity_csv = csv.writer(velocity_file, quotechar='"', delimiter=',')
     header = header_prefix.copy()
-    header += ['Total Movements', 'Total Time (min)', 'Average Velocity']
-    header.append('< %0.2f' % defaults['velocity_thresholds_index'][0])
+    header += ['total_movements', 'total_time_min', 'average_velocity']
+    header.append(('lt_%0.2f' % defaults['velocity_thresholds_index'][0]).replace('.', 'dot'))
     for i in range(len(defaults['velocity_thresholds_%s' % d])-1):
-      header.append('>= %0.2f - < %0.2f' % (defaults['velocity_thresholds_%s' % d][i], defaults['velocity_thresholds_%s' % d][i+1]))
-    header.append('>= %0.2f' % defaults['velocity_thresholds_%s' % d][-1])
+      header.append(('ge_%0.2f_to_lt_%0.2f' % (defaults['velocity_thresholds_%s' % d][i], defaults['velocity_thresholds_%s' % d][i+1])).replace('.', 'dot'))
+    header.append(('ge_%0.2f' % defaults['velocity_thresholds_%s' % d][-1]).replace('.', 'dot'))
     velocity_csv.writerow(header)
     for s in subjects:
       if d in s.digit_list:
@@ -1126,11 +1126,11 @@ def main():
     movement_rate_file = open('summary/movement_rate_%s.csv' % d, 'w')
     movement_rate_csv = csv.writer(movement_rate_file, quotechar='"', delimiter=',')
     header = header_prefix.copy()
-    header += ['Total Movements', 'Total Time (min)', 'Movements/sec']
-    header.append('< %0.2f' % defaults['movement_count_thresholds_%s' % d][0])
+    header += ['total_movements', 'total_time_min', 'movements_per_sec']
+    header.append(('lt_%0.2f' % defaults['movement_count_thresholds_%s' % d][0]).replace('.', 'dot'))
     for i in range(len(defaults['movement_count_thresholds_%s' % d])-1):
-      header.append('>= %0.2f - < %0.2f' % (defaults['movement_count_thresholds_%s' % d][i], defaults['movement_count_thresholds_%s' % d][i+1]))
-    header.append('>= %0.2f' % defaults['movement_count_thresholds_%s' % d][-1])
+      header.append(('ge_%0.2f_to_lt_%0.2f' % (defaults['movement_count_thresholds_%s' % d][i], defaults['movement_count_thresholds_%s' % d][i+1])).replace('.', 'dot'))
+    header.append(('ge_%0.2f' % defaults['movement_count_thresholds_%s' % d][-1]).replace('.', 'dot'))
     movement_rate_csv.writerow(header)
     for s in subjects:
       if d in s.digit_list:
@@ -1143,7 +1143,7 @@ def main():
     idle_time_file = open('summary/idle_time_%s.csv' % d, 'w')
     idle_time_csv = csv.writer(idle_time_file, quotechar='"', delimiter=',')
     header = header_prefix.copy()
-    header += ['Total Idle Time (min)', 'Total Time (min)', '% Idle Time', 'Longest Idle Time (sec)']
+    header += ['total_idle_time_min', 'total_time_min', 'pct_idle_time', 'longest_idle_time_sec']
     idle_time_csv.writerow(header)
     for s in subjects:
       if d in s.digit_list:
@@ -1152,6 +1152,37 @@ def main():
         idle_time_csv.writerow(s.generate_output_file_prefix() + ['NA'] * 4)
     idle_time_file.close()
 
+  for d in defaults['digits']:
+    calibration_file = open('summary/calibration_%s.csv' % d, 'w')
+    calibration_csv = csv.writer(calibration_file, quotechar='"', delimiter=',')
+    header = header_prefix.copy()
+    header += ['calibration1_min', 'calibration1_max', 'calibration2_min', 'calibration2_max', 'difference_min', 'difference_max', 'average_min', 'average_max', 'rom']
+    calibration_csv.writerow(header)
+    for s in subjects:
+      if d in s.digit_list:
+        output = []
+        for c in ['calibration1', 'calibration2']:
+          for m in ['min', 'max']:
+            if (c in s.calibration_data and m in s.calibration_data[c][d]) and s.calibration_data[c][d][m] is not None:
+              output.append(s.calibration_data[c][d][m])
+            else:
+              output.append('NA')
+        if s.calibration_data['calibration1'][d]['min'] is not None and s.calibration_data['calibration2'][d]['min'] is not None:
+          for m in ['min', 'max']:
+            output.append(s.calibration_data['calibration1'][d][m] - s.calibration_data['calibration2'][d][m])
+          for m in ['min', 'max']:
+            output.append(numpy.mean([s.calibration_data['calibration1'][d][m], s.calibration_data['calibration2'][d][m]]))
+        else:
+          output += ['NA'] * 4
+        if output[6] == 'NA':
+          if s.calibration_data['calibration1'][d]['min'] is None:
+            output.append(s.calibration_data['calibration2'][d]['max'] - s.calibration_data['calibration2'][d]['min'])
+          else:
+            output.append(s.calibration_data['calibration1'][d]['max'] - s.calibration_data['calibration1'][d]['min'])
+        else:
+          output.append(output[7] - output[6])
+        calibration_csv.writerow(s.generate_output_file_prefix() + output)
+    calibration_file.close()
 
 
   for s in subjects:
