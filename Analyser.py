@@ -124,6 +124,32 @@ class Subject:
     else:
       self.calibration_data[calibration_type][digit][min_max] = calibration.get_max()
 
+    fig = plt.figure(figsize=(15, 7.5))
+    sp = fig.add_subplot(1, 1, 1)
+    sp.set_xlim(0, 6)
+    sp.set_xlabel('Calibration')
+    sp.set_xticks([1, 2, 3, 4, 5])
+    sp.set_ylabel('Arbitary Units')
+    calibration.add_to_plot(sp)
+    fig.savefig('graphs/%s_%s_%s_%s_calibration_points.png' % (self.folder_name, calibration_type, digit, min_max))
+    plt.close()
+
+    fig = plt.figure(figsize=(20, 10))
+    sp = fig.add_subplot(1, 1, 1)
+    sp.set_xlim(0, self.data_set.data[calibration_type].data[-1].timestamp)
+    sp.set_xlabel('Time (s)')
+    sp.set_ylabel('Arbitary Units')
+    plot_time_data, plot_position_data = self.data_set.data[calibration_type].get_plot_data(digit)
+    sp.plot(plot_time_data, plot_position_data, 'k')
+    for sample_point in calibration.sample_points:
+      plot_time_data, plot_position_data = self.data_set.data[calibration_type].get_plot_data(digit, sample_point[0]/frequency, sample_point[1]/frequency)
+      sp.plot(plot_time_data, plot_position_data, 'r', linewidth=2)
+    fig.savefig('graphs/%s_%s_%s_%s_position_data_with_calibration.png' % (self.folder_name, calibration_type, digit, min_max))
+    plt.close()
+
+
+
+
   def generate_calibration_plot(self):
     """
     Generates a matplotlib of the min and max values of each digit showing their calibration values from the two calibration file
@@ -774,11 +800,16 @@ class SampleData:
       for data in self.velocity_change_data[d]:
         position_change.append(data.end_position - data.start_position)
         time_data.append(data.start_time)
-      plt.plot(time_data, position_change)
-      plt.savefig(plot_filename)
+      fig = plt.figure(figsize=(20, 10))
+      sp = fig.add_subplot(1, 1, 1)
+      sp.set_xlim(0, self.data[-1].timestamp)
+      sp.set_xlabel('Time (s)')
+      sp.set_ylabel('Arbitary Units')
+      sp.plot(time_data, position_change)
+      fig.savefig(plot_filename)
       plt.close()
 
-  def get_plot_data(self, digit):
+  def get_plot_data(self, digit, start_time=0, end_time=0):
     """
     Get the Time and Position aray for a given digit
     :param digit: index or thumb, the digit to get the data for
@@ -786,9 +817,14 @@ class SampleData:
     """
     time_array = []
     position_array = []
+    if end_time == 0:
+      end_time = self.data[-1].timestamp
     for d in self.data:
-      time_array.append(d.timestamp)
-      position_array.append(d.get_position_data(digit))
+      if start_time <= d.timestamp <= end_time:
+        time_array.append(d.timestamp)
+        position_array.append(d.get_position_data(digit))
+      if d.timestamp > end_time:
+        break
     return time_array, position_array
 
 class PositionData:
@@ -846,6 +882,10 @@ class CalibrationData:
 
   def get_max(self):
     return numpy.amax(self.sample_set)
+
+  def add_to_plot(self, plot):
+    for i in range(len(self.sample_set)):
+      plot.plot(i+1, self.sample_set[i], 'ko')
 
   def __str__(self):
     return 'max = %0.2f, min = %0.2f, average = %0.2f' % (self.get_max(), self.get_min(), self.get_average())
