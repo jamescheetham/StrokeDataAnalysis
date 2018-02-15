@@ -1,0 +1,38 @@
+Code: What do the fingers do all day after a stroke?
+
+Title: What do the fingers do all day after a stroke?
+
+Code: The code files were written by James Cheetham
+
+Analyser.py: The main python file that analysises the patient data. This expects a config.ini file in the same 
+directory and the patient data files to be in subfolders.
+ParsePilotData.py: Requries Analyser.py processes the data in pilot/170808 to determine calibration values.
+
+Libraries required
+matplotlib 2.1.0
+numpy 1.13.3
+
+Output: The Analyser script produces graphs in graphs/, data files in summary/ (directories must exist)
+
+Example Graphs for each sample file
+
+CON1_calibration1_index_max_calibration_points.png: The values derived from the calibration file for the maximum flexion
+of the index finger for CON1.
+CON1_calibration1_index_max_position_data_with_calibration.png: The Position graph of calibration 1 for CON1 showing the
+sample points
+CON1_calibration1_index_min_calibratin_points.png: Similar to the max calibration, but showing min values (i.e. extension)
+CON1_calibration1_index_min_position_data_with_calibration.png: As the max, but showing min values
+CON1_calibration1_index_position_data.png: Graphing of the Position Data over time (s)
+
+These are repeated for the Thumb and for Calibration2 (if relevant)
+
+CON1_index.png: Showing the calibration value difference beteween calibration1 and calibration2
+CON1_index_calibration1.png: The Movement of the index finger for calibration1 (repeated for calibration2 and thumb)
+CON1_index_trial.png: The Movement of the index finger during the trial
+CON1_position_histogram.png: The amount of time the digit spent in various percentiles of maximum flexion during the trial
+
+graphs/summary
+These graphs are summary data across all of the sample sets
+
+summary/
+These files contain raw data for each patient for each analysis point. 
