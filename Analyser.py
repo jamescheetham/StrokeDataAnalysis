@@ -318,7 +318,7 @@ class Subject:
     :param min_threshold: The minimum threshold of any movement
     :return:
     """
-    average_velocity = self.data_set.data['trial'].get_movement_average_velocity(digit, start_time, end_time, min_threshold)
+    average_velocity = self.data_set.data['trial'].get_movement_average_velocity(digit, start_time, end_time, min_threshold)/self.ROM[digit]
     added_to_array = False
     for i in range(len(buckets[digit])):
       if average_velocity < buckets[digit][i]:
@@ -386,7 +386,7 @@ class Subject:
 
       csv_writer.writerow('')
       for d in self.digit_list:
-        csv_writer.writerow(['%s Average Velocity' % d.capitalize(), '%0.2f' % self.average_velocity[d]])
+        csv_writer.writerow(['%s Average Velocity' % d.capitalize(), '%0.2f' % (self.average_velocity[d]/self.ROM[d])])
         csv_writer.writerow(['%s Average Velocity Histogram Data' % d.capitalize()])
         output_array = []
         thresholds = settings['velocity_thresholds_%s' % d]
@@ -1140,7 +1140,7 @@ def main():
     amplitude_csv.writerow(header_prefix + ['total_amplitude', 'total_movements', 'average_amplitude', 'pct_rom'])
     for s in subjects:
       if d in s.average_amplitude:
-        amplitude_csv.writerow(s.generate_output_file_prefix() + [s.total_amplitude[d], s.movement_count[d], s.average_amplitude[d], s.average_amplitude[d]/s.ROM[d]])
+        amplitude_csv.writerow(s.generate_output_file_prefix() + [s.total_amplitude[d], s.movement_count[d], s.average_amplitude[d], (s.average_amplitude[d]/s.ROM[d])])
       else:
         amplitude_csv.writerow(s.generate_output_file_prefix() + ['NA'] * 4)
     amplitude_file.close()
@@ -1157,7 +1157,7 @@ def main():
     velocity_csv.writerow(header)
     for s in subjects:
       if d in s.digit_list:
-        velocity_csv.writerow(s.generate_output_file_prefix() + [s.movement_count[d], s.data_set.data['trial'].data[-1].timestamp/60, s.average_velocity[d]] + s.velocity_groupings[d])
+        velocity_csv.writerow(s.generate_output_file_prefix() + [s.movement_count[d], s.data_set.data['trial'].data[-1].timestamp/60, s.average_velocity[d]/s.ROM[d]] + s.velocity_groupings[d])
       else:
         velocity_csv.writerow(s.generate_output_file_prefix() + ['NA'] * (3 + len(defaults['velocity_thresholds_%s' % d]) + 1))
     velocity_file.close()
