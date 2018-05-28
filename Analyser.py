@@ -488,16 +488,16 @@ class Histogram:
     if as_raw:
       output_array.append(self.beyond_lower.count)
     else:
-      output_array.append('%0.2f%%' % self.beyond_lower.percentage)
+      output_array.append('%0.2f' % self.beyond_lower.percentage)
     for b in self.buckets:
       if as_raw:
         output_array.append(b.count)
       else:
-        output_array.append('%0.2f%%' % b.percentage)
+        output_array.append('%0.2f' % b.percentage)
     if as_raw:
       output_array.append(self.beyond_upper.count)
     else:
-      output_array.append('%0.2f%%' % self.beyond_upper.percentage)
+      output_array.append('%0.2f' % self.beyond_upper.percentage)
     csv_file.writerow(output_array)
 
   def __str__(self):
